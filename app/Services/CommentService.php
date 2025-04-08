@@ -28,9 +28,7 @@ class CommentService
      */
     public function create(array $data): Comment
     {
-        $comment = $this->commentRepository->create([...$data, 'author_id' => auth()->id()]);
-        Log::info('Comment created:', ['comment' => $comment]);
-
+        $comment = $this->commentRepository->create([...$data, 'user_id' => auth()->id()]);
         return $comment;
     }
 

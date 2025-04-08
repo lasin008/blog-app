@@ -4,7 +4,8 @@ namespace App\Services;
 
 use App\Interfaces\PostRepositoryInterface;
 use App\Models\Post;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\Pagination\Paginator;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class PostService
@@ -26,9 +27,9 @@ class PostService
      *
      * @param int $perPage
      * @param array $filters
-     * @return LengthAwarePaginator
+     * @return Paginator
      */
-    public function all(int $perPage = 15, array $filters = []): LengthAwarePaginator
+    public function all(int $perPage = 5, array $filters = []): Paginator
     {
         return $this->postRepository->all($perPage, $filters);
     }
@@ -41,7 +42,8 @@ class PostService
      */
     public function create(array $data): Post
     {
-        $imagePath = $data['image'] ? $data['image']->store('images', 'public') : null;
+        $imagePath = isset($data['image']) ? $data['image']->store('images', 'public') : null;
+        Log::info($imagePath);
         $post = $this->postRepository->create([
             'title' => $data['title'],
             'content' => $data['content'],

@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Models\Post;
-use Illuminate\Pagination\LengthAwarePaginator;
 use App\Interfaces\PostRepositoryInterface;
+use Illuminate\Contracts\Pagination\Paginator;
+
 
 /**
  * Class PostRepository
@@ -18,13 +19,13 @@ class PostRepository implements PostRepositoryInterface
      *
      * @param int $perPage
      * @param array $filters
-     * @return LengthAwarePaginator
+     * @return CursorPaginator
      */
-    public function all(int $perPage = 15, array $filters = []): LengthAwarePaginator
+    public function all(int $perPage = 15, array $filters = []): Paginator
     {
         $query = Post::query();
         $this->applyFilters($query, $filters);
-        return $query->paginate($perPage);
+        return $query->simplePaginate($perPage);
     }
 
     /**
@@ -85,23 +86,27 @@ class PostRepository implements PostRepositoryInterface
     protected function applyFilters($query, array $filters): void
     {
         foreach ($filters as $filterKey => $filterValue) {
-            if (empty($filterValue)) {
+            if ($filterValue === '' || $filterValue === null) {
                 continue;
             }
-
-            // Apply each filter dynamically
-            if ($filterKey === 'title') {
-                $query->where('title', 'like', '%' . $filterValue . '%');
-            } elseif ($filterKey === 'author_id') {
-                $query->where('author_id', $filterValue);
-            } elseif ($filterKey === 'tag') {
+            if ($filterKey === 'tags') {
                 $query->whereHas('tags', function ($q) use ($filterValue) {
-                    $q->where('tags.name', 'like', '%' . $filterValue . '%');
+                    $q->whereIn('tags.id', (array) $filterValue);
                 });
-            } elseif ($filterKey === 'date_from') {
-                $query->where('created_at', '>=', $filterValue);
-            } elseif ($filterKey === 'date_to') {
-                $query->where('created_at', '<=', $filterValue);
+            } elseif ($filterKey === 'title') {
+                $query->where('title', 'like', '%' . $filterValue . '%');
+            } elseif ($filterKey === 'published_on') {
+                $query->whereDate('created_at', $filterValue);
+            } elseif ($filterKey === 'comment_count') {
+                if ((int) $filterValue === 0) {
+                    $query->whereDoesntHave('comments');
+                } else {
+                    $query->whereHas('comments', function ($q) use ($filterValue) {
+                        $q->selectRaw('count(comments.id)')
+                            ->groupBy('comments.post_id')
+                            ->havingRaw('count(comments.id) = ?', [(int) $filterValue]);
+                    });
+                }
             }
         }
     }

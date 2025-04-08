@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('content');
             $table->unsignedBigInteger('author_id');
             $table->string('image')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->foreign('author_id')->references('id')->on('users')->onDelete('cascade');
         });

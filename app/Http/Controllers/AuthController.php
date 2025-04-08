@@ -36,4 +36,15 @@ class AuthController extends Controller
             'email' => 'The provided credentials do not match our records.',
         ]);
     }
+
+    /**
+     * Handle the logout request.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function logout()
+    {
+        Auth::logout(); // Log out the user
+        return redirect()->route('login'); // Redirect to the login page after logout
+    }
 }

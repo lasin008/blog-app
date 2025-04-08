@@ -30,7 +30,7 @@ class CommentController extends Controller
         ]);
         try {
             $this->commentService->create($data);
-            return redirect()->route('comments.index')->with('success', 'Comment created successfully.');
+            return back()->with('success', 'Comment created successfully.');
         } catch (\Exception $e) {
             return back()->with('error', 'Error creating comment: ' . $e->getMessage());
         }
@@ -67,7 +67,7 @@ class CommentController extends Controller
     {
         try {
             $this->commentService->delete($id);
-            return redirect()->route('comments.index')->with('success', 'Comment deleted successfully.');
+            return back()->with('success', 'Comment deleted successfully.');
         } catch (\Exception $e) {
             return back()->with('error', 'Error deleting comment: ' . $e->getMessage());
         }

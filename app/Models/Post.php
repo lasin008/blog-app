@@ -17,7 +17,7 @@ class Post extends Model
      *
      * @var string[]
      */
-    protected $fillable = ['title', 'content', 'author_id', 'image'];
+    protected $fillable = ['title', 'content', 'author_id', 'image', 'is_active'];
 
     /**
      * Get the author that owns the post.

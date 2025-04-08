@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Post;
 use App\Models\Tag;
+use App\Models\User;
 use App\Services\PostService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Gate;
 
 class PostController extends Controller
 {
@@ -26,9 +29,11 @@ class PostController extends Controller
     public function index(Request $request)
     {
         try {
-            $filters = $request->only(['author_id', 'tag', 'created_at']);
-            $posts = $this->postService->all(15, $filters);
-            return view('posts.index', compact('posts'));
+            $perPage = $request->get('per_page', 3);
+            $posts = $this->postService->all($perPage, $request->all());
+            $authors = User::all();
+            $tags = Tag::all();
+            return view('posts.index', compact('posts', 'tags', 'authors'));
         } catch (\Exception $e) {
             Log::error('Error fetching posts: ' . $e->getMessage());
             return redirect()->route('posts.index')->with('error', 'Failed to load posts. Please try again later.');
@@ -130,7 +135,8 @@ class PostController extends Controller
             'content' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'tags' => 'nullable|array',
-            'tags.*' => 'exists:tags,id'
+            'tags.*' => 'exists:tags,id',
+            'is_active' => 'nullable|boolean'
         ]);
     }
 }

@@ -3,6 +3,8 @@
 namespace App\Interfaces;
 
 use App\Models\Post;
+use Illuminate\Contracts\Pagination\Paginator;
+use Illuminate\Pagination\CursorPaginator;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 interface PostRepositoryInterface
@@ -12,9 +14,9 @@ interface PostRepositoryInterface
      *
      * @param int $perPage
      * @param array $filters
-     * @return LengthAwarePaginator
+     * @return Paginator
      */
-    public function all(int $perPage = 15, array $filters = []): LengthAwarePaginator;
+    public function all(int $perPage = 15, array $filters = []): Paginator;
 
     /**
      * Find a post by its ID.

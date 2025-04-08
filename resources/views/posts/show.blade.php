@@ -13,6 +13,22 @@
                 <div class="card-body">
                     <p class="card-text">{{ $post->content }}</p>
                     <p class="text-muted">By {{ $post->author->name }} | {{ $post->created_at->diffForHumans() }}</p>
+                    
+                    <!-- Tags Section -->
+                    <div class="mt-3">
+                        @if ($post->tags->count() > 0)
+                            <p><strong>Tags:</strong></p>
+                            <ul class="list-inline">
+                                @foreach ($post->tags as $tag)
+                                    <li class="list-inline-item">
+                                        <span class="badge badge-info">{{ $tag->name }}</span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <p>No tags assigned to this post.</p>
+                        @endif
+                    </div>
                 </div>
             </div>
 
@@ -26,6 +42,15 @@
                                 <small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
                             </div>
                             <p class="mt-2">{{ $comment->content }}</p>
+
+                            <!-- Delete button only if the current user is the comment author -->
+                            @if ($comment->author->id === auth()->id())
+                                <form action="{{ route('comments.destroy', $comment->id) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm mt-2">Delete</button>
+                                </form>
+                            @endif
                         </li>
                     @empty
                         <li class="list-group-item">No comments yet.</li>
@@ -33,7 +58,7 @@
                 </ul>
             </div>
 
-            <div class="mt-4">
+            <div class="mt-4 mb-10">
                 <h4>Add a Comment</h4>
                 <form action="{{ route('comments.store') }}" method="POST">
                     @csrf
