@@ -74,7 +74,10 @@ class PostController extends Controller
             return redirect()->route('posts.index');
         } catch (\Exception $e) {
             Log::error('Error creating post: ' . $e->getMessage());
-            return redirect()->route('posts.index')->with('error', 'Failed to create the post. Please try again later.');
+            return redirect()->route('posts.index')->with(
+                'error',
+                'Failed to create the post. Please try again later.'
+            );
         }
     }
 
@@ -108,7 +111,10 @@ class PostController extends Controller
             return redirect()->route('posts.index');
         } catch (\Exception $e) {
             Log::error('Error updating the post: ' . $e->getMessage());
-            return redirect()->route('posts.index')->with('error', 'Failed to update the post. Please try again later.');
+            return redirect()->route('posts.index')->with(
+                'error',
+                'Failed to update the post. Please try again later.'
+            );
         }
     }
 

@@ -8,7 +8,6 @@ use App\Models\Post;
 use App\Interfaces\PostRepositoryInterface;
 use Illuminate\Contracts\Pagination\Paginator;
 
-
 /**
  * Class PostRepository
  */
@@ -25,6 +24,7 @@ class PostRepository implements PostRepositoryInterface
     {
         $query = Post::query();
         $this->applyFilters($query, $filters);
+        $query->with(['author', 'comments']);
         $query->where(function ($query) {
             $query->where('is_active', true)
                 ->orWhere('author_id', auth()->id());
@@ -41,7 +41,7 @@ class PostRepository implements PostRepositoryInterface
      */
     public function find(int $id): Post
     {
-        return Post::findorfail($id);
+        return Post::with(['comments', 'tags', 'author'])->findOrFail($id);
     }
 
     /**

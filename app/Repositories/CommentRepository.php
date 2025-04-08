@@ -26,7 +26,7 @@ class CommentRepository implements CommentRepositoryInterface
      */
     public function find(int $id): Comment
     {
-        return Comment::findOrFail($id);
+        return Comment::with(['author'])->findOrFail($id);
     }
 
     /**
