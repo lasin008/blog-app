@@ -72,4 +72,24 @@ class CommentController extends Controller
             return back()->with('error', 'Error deleting comment: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Find comments by post id.
+     *
+     * @param int $postId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function findByPost(int $postId)
+    {
+        try {
+            $comments = $this->commentService->findByPost($postId);
+            return response()->json($comments);
+        } catch (\Exception $e) {
+            Log::error('Error fetching comments for post ' . $postId . ': ' . $e->getMessage());
+            return response()->json([
+                'error' => 'An error occurred while retrieving comments. Please try again later.',
+                'details' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

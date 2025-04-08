@@ -8,7 +8,6 @@
     <div class="row mb-4">
         <form method="GET" action="{{ route('posts.index') }}" class="w-100">
             <div class="row g-3">
-
                 <!-- Title Filter -->
                 <div class="col-md-2">
                     <label for="title" class="form-label">Title</label>
@@ -54,7 +53,6 @@
                         @endforeach
                     </select>
                 </div>
-
             </div>
 
             <!-- Submit Button and Clear Filters Button -->
@@ -91,14 +89,7 @@
                     <button class="btn btn-info comment-btn"
                         data-toggle="modal"
                         data-target="#commentsModal"
-                        data-post-id="{{ $post->id }}"
-                        data-comments="{{ json_encode($post->comments->map(function($comment) { 
-                            return [
-                                'content' => $comment->content, 
-                                'author_name' => $comment->author->name,
-                                'created_at' => $comment->created_at->toFormattedDateString()
-                            ]; 
-                        })) }}">
+                        data-post-id="{{ $post->id }}">
                         {{ $post->comments->count() }} Comments
                     </button>
                 </td>
@@ -157,21 +148,29 @@
         const commentButtons = document.querySelectorAll('.comment-btn');
         commentButtons.forEach(function(button) {
             button.addEventListener('click', function() {
-                const commentsData = button.getAttribute('data-comments');
-                const comments = JSON.parse(commentsData);
-                let commentsHtml = '<ul>';
-                comments.forEach(function(comment) {
-                    commentsHtml += `
-                        <li>
-                            <strong>${comment.author_name}</strong>: ${comment.content} 
-                            <br>
-                            <small>Posted on: ${comment.created_at}</small>
-                        </li>
-                    `;
-                });
-                commentsHtml += '</ul>';
+                const postId = button.getAttribute('data-post-id');
                 const commentsList = document.getElementById('comments-list');
-                commentsList.innerHTML = commentsHtml;
+                commentsList.innerHTML = '<div class="text-center">Loading comments...</div>';
+                fetch(`comment/${postId}`)
+                    .then(response => response.json())
+                    .then(comments => {
+                        let commentsHtml = '<ul>';
+                        comments.forEach(function(comment) {
+                            commentsHtml += `
+                                <li>
+                                    <strong>${comment.author.name}</strong>: ${comment.content} 
+                                    <br>
+                                    <small>Posted on: ${new Date(comment.created_at).toLocaleDateString()}</small>
+                                </li>
+                            `;
+                        });
+                        commentsHtml += '</ul>';
+                        commentsList.innerHTML = commentsHtml;
+                    })
+                    .catch(error => {
+                        console.log(error);
+                        commentsList.innerHTML = '<div class="text-danger">Failed to load comments. Please try again later.</div>';
+                    });
             });
         });
     });

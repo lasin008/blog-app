@@ -15,3 +15,4 @@ Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::resource('posts', PostController::class)->middleware('auth');
 Route::resource('comments', CommentController::class)->middleware('auth');
+Route::get('comment/{postId}', [CommentController::class, 'findByPost']);
