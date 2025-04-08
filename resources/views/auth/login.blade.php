@@ -1,11 +1,9 @@
-<!-- resources/views/auth/login.blade.php -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Blog App - Login</title> <!-- Changed title here -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
 <body>
@@ -14,7 +12,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header text-center">
-                        <h3>Login</h3>
+                        <h3>Blog App - Login</h3> <!-- Changed header title here -->
                     </div>
 
                     <div class="card-body">

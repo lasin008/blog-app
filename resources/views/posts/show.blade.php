@@ -4,6 +4,11 @@
 <div class="container">
     <div class="row">
         <div class="col-md-8 offset-md-2">
+            <!-- Back to Posts Button (top-left) -->
+            <div class="mt-4">
+                <a href="{{ route('posts.index') }}" class="btn btn-secondary btn-sm">Back to Posts</a>
+            </div>
+
             <h1 class="text-center mb-4">{{ $post->title }}</h1>
 
             <div class="card mb-4">
@@ -45,11 +50,15 @@
 
                             <!-- Delete button only if the current user is the comment author -->
                             @if ($comment->author->id === auth()->id())
-                                <form action="{{ route('comments.destroy', $comment->id) }}" method="POST" style="display: inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm mt-2">Delete</button>
-                                </form>
+                                <!-- Wrap the Delete button in a div with `text-end` class to right-align it -->
+                                <div class="text-end">
+                                    <form action="{{ route('comments.destroy', $comment->id) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <!-- Custom small Delete button -->
+                                        <button type="submit" class="btn btn-danger btn-sm mt-2" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">Delete</button>
+                                    </form>
+                                </div>
                             @endif
                         </li>
                     @empty
@@ -66,13 +75,14 @@
                     <div class="form-group">
                         <textarea class="form-control" name="content" rows="4" placeholder="Add a comment..." required></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary mt-3 btn-lg btn-block">Submit Comment</button>
+
+                    <!-- Custom small Submit Comment Button -->
+                    <div class="text-end mt-3">
+                        <button type="submit" class="btn btn-primary btn-sm">Submit Comment</button>
+                    </div>
                 </form>
             </div>
 
-            <div class="mt-4 text-center">
-                <a href="{{ route('posts.index') }}" class="btn btn-secondary">Back to Posts</a>
-            </div>
         </div>
     </div>
 </div>

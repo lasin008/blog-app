@@ -9,7 +9,6 @@ use App\Services\PostService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Gate;
 
 class PostController extends Controller
 {
@@ -29,7 +28,7 @@ class PostController extends Controller
     public function index(Request $request)
     {
         try {
-            $perPage = $request->get('per_page', 3);
+            $perPage = $request->get('per_page', 10);
             $posts = $this->postService->all($perPage, $request->all());
             $authors = User::all();
             $tags = Tag::all();
@@ -85,9 +84,12 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function edit(int $id)
+    public function edit(Post $post)
     {
-        $post = $this->postService->find($id);
+        if ($post->author_id != auth()->id()) {
+            return redirect()->route('posts.index')->with('error', 'You are not authorized to edit this post.');
+        }
+        $post = $this->postService->find($post->id);
         $tags = Tag::all();
         return view('posts.create', compact('post', 'tags'));
     }
@@ -116,9 +118,12 @@ class PostController extends Controller
      * @param int $id
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(int $id)
+    public function destroy(Post $post)
     {
-        $this->postService->delete($id);
+        if ($post->author_id != auth()->id()) {
+            return redirect()->route('posts.index')->with('error', 'You are not authorized to edit this post.');
+        }
+        $this->postService->delete($post->id);
         return redirect()->route('posts.index');
     }
 

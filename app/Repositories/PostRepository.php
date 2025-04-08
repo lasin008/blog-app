@@ -25,6 +25,11 @@ class PostRepository implements PostRepositoryInterface
     {
         $query = Post::query();
         $this->applyFilters($query, $filters);
+        $query->where(function ($query) {
+            $query->where('is_active', true)
+                ->orWhere('author_id', auth()->id());
+        });
+        $query->orderBy('updated_at', 'desc');
         return $query->simplePaginate($perPage);
     }
 
@@ -97,6 +102,8 @@ class PostRepository implements PostRepositoryInterface
                 $query->where('title', 'like', '%' . $filterValue . '%');
             } elseif ($filterKey === 'published_on') {
                 $query->whereDate('created_at', $filterValue);
+            } elseif ($filterKey === 'author_id') {
+                $query->where('author_id', '=', $filterValue);
             } elseif ($filterKey === 'comment_count') {
                 if ((int) $filterValue === 0) {
                     $query->whereDoesntHave('comments');

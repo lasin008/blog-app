@@ -1,5 +1,3 @@
-{{-- resources/views/layouts/app.blade.php --}}
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -18,26 +16,25 @@
     {{-- Navbar --}}
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url('/') }}">Blog App</a>
+            <a class="navbar-brand" href="{{ url('/posts') }}">Blog App</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
+                    {{-- Show logged-in user's name --}}
+                    @auth
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('posts.index') }}">Posts</a>
+                        <span class="navbar-text">Hello, {{ Auth::user()->name }}</span>
                     </li>
-
                     {{-- Logout functionality --}}
                     <li class="nav-item">
-                        @auth
-                        <!-- Logout Form -->
                         <form action="{{ route('logout') }}" method="POST" class="d-inline">
                             @csrf
                             <button type="submit" class="btn btn-link nav-link">Log Out</button>
                         </form>
-                        @endauth
                     </li>
+                    @endauth
 
                     {{-- Login link for guests --}}
                     @guest
@@ -55,6 +52,10 @@
         @yield('content')
     </div>
 
+        <!-- Footer -->
+        <footer class="mt-5 pt-4 pb-2 text-center" style="background-color: #f8f9fa;">
+        <p class="mb-0">&copy; {{ date('Y') }} Your Company. All rights reserved.</p>
+    </footer>
     {{-- Bootstrap JS and JQuery --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
