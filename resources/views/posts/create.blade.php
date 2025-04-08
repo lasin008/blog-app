@@ -24,17 +24,22 @@
         <div class="mb-3">
             <label for="image" class="form-label">Image</label>
             <input type="file" class="form-control" id="image" name="image">
+            
             @if(isset($post) && $post->image)
             <div class="mt-2">
                 <img src="{{ asset('storage/' . $post->image) }}" alt="Post Image" style="width: 150px;">
                 <p>Current image</p>
+                <!-- Close button to remove current image -->
+                <button type="button" class="btn btn-danger btn-sm" id="remove-image-btn">
+                    <i class="fas fa-times"></i> Remove Image
+                </button>
+                <input type="hidden" name="remove_image" id="remove_image" value="0"> <!-- Hidden input to track if image is removed -->
             </div>
             @endif
         </div>
 
         <div class="mb-3">
             <label for="tags" class="form-label">Tags</label>
-
             @if($tags->isEmpty())
             <!-- If there are no tags, show an input to manually enter tags -->
             <input type="text" class="form-control" id="tags" name="tags" placeholder="Enter tags separated by commas" value="{{ old('tags', isset($post) ? $post->tags->pluck('name')->implode(', ') : '') }}">
@@ -66,4 +71,15 @@
         <button type="submit" class="btn btn-primary">{{ isset($post) ? 'Update' : 'Create' }} Post</button>
     </form>
 </div>
+
+
+<script>
+    document.getElementById('remove-image-btn').addEventListener('click', function() {
+        document.getElementById('remove_image').value = '1';
+        const imageContainer = document.querySelector('.mt-2');
+        imageContainer.style.display = 'none';
+    });
+</script>
+
+
 @endsection

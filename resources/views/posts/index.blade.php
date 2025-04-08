@@ -154,19 +154,11 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Select all the comment buttons
         const commentButtons = document.querySelectorAll('.comment-btn');
-
-        // Iterate over each button
         commentButtons.forEach(function(button) {
             button.addEventListener('click', function() {
-                // Get the comments data from the button's data-comments attribute
                 const commentsData = button.getAttribute('data-comments');
-
-                // Parse the comments data into an array of objects
                 const comments = JSON.parse(commentsData);
-
-                // Build the HTML for displaying the comments
                 let commentsHtml = '<ul>';
                 comments.forEach(function(comment) {
                     commentsHtml += `
@@ -178,8 +170,6 @@
                     `;
                 });
                 commentsHtml += '</ul>';
-
-                // Insert the generated HTML into the modal's comment list container
                 const commentsList = document.getElementById('comments-list');
                 commentsList.innerHTML = commentsHtml;
             });

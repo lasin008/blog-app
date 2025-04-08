@@ -46,4 +46,12 @@ interface CommentRepositoryInterface
      * @return bool
      */
     public function delete(int $id): bool;
+
+    /**
+     * Find comments associated with post
+     *
+     * @param int $postId
+     * @return Collection
+     */
+    public function findByPost(int $postId): Collection;
 }

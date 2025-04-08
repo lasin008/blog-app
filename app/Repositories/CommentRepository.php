@@ -65,4 +65,17 @@ class CommentRepository implements CommentRepositoryInterface
         $comment = $this->find($id);
         return $comment->delete();
     }
+
+    /**
+     * Find comments by post id.
+     *
+     * @param int $postId
+     * @return Collection
+     */
+    public function findByPost(int $postId): Collection
+    {
+        return Comment::with('author')
+            ->where('post_id', $postId)
+            ->get();
+    }
 }

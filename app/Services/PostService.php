@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Interfaces\PostRepositoryInterface;
 use App\Models\Post;
 use Illuminate\Contracts\Pagination\Paginator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -29,7 +30,7 @@ class PostService
      * @param array $filters
      * @return Paginator
      */
-    public function all(int $perPage = 5, array $filters = []): Paginator
+    public function all(int $perPage, array $filters = []): Paginator
     {
         return $this->postRepository->all($perPage, $filters);
     }
