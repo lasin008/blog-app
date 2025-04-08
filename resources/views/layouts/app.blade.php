@@ -9,6 +9,26 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        html, body {
+            height: 100%; /* Set height of html and body to 100% */
+            margin: 0; /* Remove default margin */
+            display: flex;
+            flex-direction: column; /* Make the body a flex container */
+        }
+
+        .container {
+            flex-grow: 1; /* Allow the content to take up remaining space */
+        }
+
+        footer {
+            margin-top: auto; /* Push the footer to the bottom */
+            background-color: #f8f9fa;
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+    </style>
 </head>
 
 <body>
@@ -52,10 +72,11 @@
         @yield('content')
     </div>
 
-        <!-- Footer -->
-        <footer class="mt-5 pt-4 pb-2 text-center" style="background-color: #f8f9fa;">
+    <!-- Footer -->
+    <footer class="text-center">
         <p class="mb-0">&copy; {{ date('Y') }} Your Company. All rights reserved.</p>
     </footer>
+
     {{-- Bootstrap JS and JQuery --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>

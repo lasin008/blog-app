@@ -14,7 +14,6 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        // Create 3 specific users with fixed emails
         User::create([
             'name' => 'Admin User',
             'email' => 'lasin@example.com',
