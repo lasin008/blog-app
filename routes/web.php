@@ -16,3 +16,7 @@ Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 Route::resource('posts', PostController::class)->middleware('auth');
 Route::resource('comments', CommentController::class)->middleware('auth');
 Route::get('comment/{postId}', [CommentController::class, 'findByPost']);
+
+Route::get('/home', [PostController::class, 'showPosts'])->name('home')->middleware('auth');
+
+Route::get('post/{postId}/get', [PostController::class, 'find']);

@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePostRequest;
+use App\Http\Resources\PostCollection;
+use App\Http\Resources\PostDetailsResource;
 use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
 use App\Services\PostService;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -24,6 +27,24 @@ class PostController extends Controller
     }
 
     /**
+     * SHow posts view.
+     *
+     * @param Request $request
+     * @return \Illuminate\View\View
+     */
+    public function showPosts(Request $request)
+    {
+        try {
+            $authors = User::all();
+            $tags = Tag::all();
+            return view('posts.index', compact('authors', 'tags'));
+        } catch (Exception $e) {
+            Log::error('Error loading page: ' . $e->getMessage());
+            return redirect()->route('home')->with('error', 'Failed to load posts. Please try again later.');
+        }
+    }
+
+    /**
      * Display a listing of the posts.
      *
      * @param Request $request
@@ -34,10 +55,8 @@ class PostController extends Controller
         try {
             $perPage = $request->get('per_page', 10);
             $posts = $this->postService->all($perPage, $request->all());
-            $authors = User::all();
-            $tags = Tag::all();
-            return view('posts.index', compact('posts', 'tags', 'authors'));
-        } catch (\Exception $e) {
+            return new PostCollection($posts);
+        } catch (Exception $e) {
             Log::error('Error fetching posts: ' . $e->getMessage());
             return redirect()->route('posts.index')->with('error', 'Failed to load posts. Please try again later.');
         }
@@ -61,8 +80,27 @@ class PostController extends Controller
      */
     public function show($id)
     {
-        $post = $this->postService->find($id);
-        return view('posts.show', compact('post'));
+        return view('posts.show', compact('id'));
+    }
+
+    /**
+     * Find the post by id.
+     *
+     * @return View
+     */
+    public function find($id)
+    {
+        try {
+            $post = $this->postService->find($id);
+            return response()->json([
+                'status' => 'success',
+                'data' => new PostDetailsResource($post)
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'An error occurred while retrieving the post. Please try again later.'
+            ], 500);
+        }
     }
 
     /**
@@ -75,7 +113,7 @@ class PostController extends Controller
     {
         try {
             $this->postService->create($request->validated());
-            return redirect()->route('posts.index');
+            return redirect()->route('home');
         } catch (\Exception $e) {
             Log::error('Error creating post: ' . $e->getMessage());
             return redirect()->route('posts.index')->with(
@@ -123,20 +161,24 @@ class PostController extends Controller
     /**
      * Remove the specified post from the database.
      *
-     * @param Post $post
-     * @return \Illuminate\Http\RedirectResponse
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Post $post)
+    public function destroy($id)
     {
         try {
+            $post = $this->postService->find($id);
             $this->authorize('delete', $post);
-            $this->postService->delete($post->id);
-            return redirect()->route('posts.index')->with('success', 'Post deleted successfully.');
+            $this->postService->delete($id);
+            return response()->json([
+                'success' => true,
+                'message' => 'Post deleted successfully.'
+            ], 200);
         } catch (\Exception $e) {
-            return redirect()->route('posts.index')->with(
-                'error',
-                'An error occurred while trying to delete the post. Please try again.'
-            );
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while trying to delete the post. Please try again.'
+            ], 500);
         }
     }
 }

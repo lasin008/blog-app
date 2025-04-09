@@ -6,6 +6,7 @@ use App\Repositories\PostRepository;
 use App\Models\Post;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\Pagination\Paginator;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class PostService
@@ -31,16 +32,14 @@ class PostService
      */
     public function all(int $perPage, array $requestData = []): LengthAwarePaginator
     {
-        foreach ($requestData as $data) {
-            $filters =
-                [
-                    'title' => $data['title'] ?? null,
-                    'author_id' => $data['author_id'] ?? null,
-                    'created_at' => $data['published_on'] ?? null,
-                    'tags' => $data['tags'] ?? null,
-                    'comment_count' => $data['comment_count'] ?? null
-                ];
-        }
+        $filters =
+            [
+                'title' => $requestData['title'] ?? null,
+                'author_id' => $requestData['author_id'] ?? null,
+                'created_at' => $requestData['published_on'] ?? null,
+                'tags' => $requestData['tags'] ?? null,
+                'comment_count' => $requestData['comment_count'] ?? null
+            ];
         return $this->postRepository->all($perPage, $filters);
     }
 

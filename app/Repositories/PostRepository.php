@@ -6,6 +6,7 @@ namespace App\Repositories;
 
 use App\Models\Post;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class PostRepository
@@ -29,6 +30,7 @@ class PostRepository extends AbstractRepository
     {
         $query = Post::query();
         $query->with(['author', 'comments']);
+        $this->applyFilters($query, $filters);
         $query->where(function ($query) {
             $query->where('is_active', true)
                 ->orWhere('author_id', auth()->id());

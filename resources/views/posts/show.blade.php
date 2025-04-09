@@ -4,86 +4,153 @@
 <div class="container">
     <div class="row">
         <div class="col-md-8 offset-md-2">
-            <!-- Back to Posts Button (top-left) -->
+            <!-- Back to Home Button (top-left) -->
             <div class="mt-4">
-                <a href="{{ route('posts.index') }}" class="btn btn-secondary btn-sm">Back to Posts</a>
+                <a href="/home" class="btn btn-secondary btn-sm">Back to Home</a>
             </div>
 
-            <h1 class="text-center mb-4">{{ $post->title }}</h1>
-
-            <div class="card mb-4">
-                @if ($post->image)
-                    <img src="{{ asset('storage/' . $post->image) }}" class="card-img-top" alt="Post Image" style="width: 100%; height: 350px; object-fit: cover;">
-                @endif
-                <div class="card-body">
-                    <p class="card-text">{{ $post->content }}</p>
-                    <p class="text-muted">By {{ $post->author->name }} | {{ $post->created_at->diffForHumans() }}</p>
-                    
-                    <!-- Tags Section -->
-                    <div class="mt-3">
-                        @if ($post->tags->count() > 0)
-                            <p><strong>Tags:</strong></p>
-                            <ul class="list-inline">
-                                @foreach ($post->tags as $tag)
-                                    <li class="list-inline-item">
-                                        <span class="badge badge-info">{{ $tag->name }}</span>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        @else
-                            <p>No tags assigned to this post.</p>
-                        @endif
-                    </div>
-                </div>
+            <div id="post-container">
+                <!-- Post content will be loaded here via AJAX -->
             </div>
 
-            <div class="mt-5">
-                <h3 class="mb-4">Comments</h3>
-                <ul class="list-group">
-                    @forelse ($post->comments as $comment)
-                        <li class="list-group-item mb-3">
-                            <div class="d-flex justify-content-between">
-                                <strong>{{ $comment->author->name }}</strong>
-                                <small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
-                            </div>
-                            <p class="mt-2">{{ $comment->content }}</p>
-
-                            <!-- Delete button only if the current user is the comment author -->
-                            @if ($comment->author->id === auth()->id())
-                                <!-- Wrap the Delete button in a div with `text-end` class to right-align it -->
-                                <div class="text-end">
-                                    <form action="{{ route('comments.destroy', $comment->id) }}" method="POST" style="display: inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <!-- Custom small Delete button -->
-                                        <button type="submit" class="btn btn-danger btn-sm mt-2" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">Delete</button>
-                                    </form>
-                                </div>
-                            @endif
-                        </li>
-                    @empty
-                        <li class="list-group-item">No comments yet.</li>
-                    @endforelse
-                </ul>
+            <div class="mt-5" id="comments-container">
+                <!-- Comments will be loaded here -->
             </div>
 
             <div class="mt-4 mb-10">
                 <h4>Add a Comment</h4>
-                <form action="{{ route('comments.store') }}" method="POST">
+                <form id="comment-form" method="POST">
                     @csrf
-                    <input type="hidden" name="post_id" value="{{ $post->id }}">
+                    <input type="hidden" name="post_id" id="post_id">
                     <div class="form-group">
-                        <textarea class="form-control" name="content" rows="4" placeholder="Add a comment..." required></textarea>
+                        <textarea class="form-control" name="content" id="comment-content" rows="4" placeholder="Add a comment..." required></textarea>
                     </div>
 
-                    <!-- Custom small Submit Comment Button -->
                     <div class="text-end mt-3">
                         <button type="submit" class="btn btn-primary btn-sm">Submit Comment</button>
                     </div>
                 </form>
             </div>
-
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Extract the post ID from the URL
+        const pathSegments = window.location.pathname.split('/');
+        const postId = pathSegments[pathSegments.length - 1]; // Assuming the ID is the last part of the URL
+
+        // Function to load post and comments via fetch
+        function loadPost(postId) {
+            fetch('/post/' + postId + '/get')
+                .then(response => response.json())
+                .then(data => {
+                    // Load the post content dynamically
+                    const postContainer = document.getElementById('post-container');
+                    postContainer.innerHTML = `
+                    <h1 class="text-center mb-4">${data.data.title}</h1>
+                    <div class="card mb-4">
+                        ${data.data.image ? `<img src="${data.data.image}" class="card-img-top" alt="Post Image" style="width: 100%; height: 350px; object-fit: cover;">` : ''}
+                        <div class="card-body">
+                            <p class="card-text">${data.data.content}</p>
+                            <p class="text-muted">By ${data.data.author} | ${data.data.created_at}</p>
+                            <div class="mt-3">
+                                <strong>Tags:</strong>
+                                <ul class="list-inline">
+                                    ${data.data.tags.map(tag => `<li class="list-inline-item"><span class="badge badge-info">${tag}</span></li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                    const commentsContainer = document.getElementById('comments-container');
+                    let commentsHtml = '';
+                    if (data.data.comments.length > 0) {
+                        commentsHtml = '<h3 class="mb-4">Comments</h3><ul class="list-group">';
+                        data.data.comments.forEach(comment => {
+                            commentsHtml += `
+                            <li class="list-group-item mb-3" id="comment-${comment.id}">
+                                <div class="d-flex justify-content-between">
+                                    <strong>${comment.author}</strong>
+                                    <small class="text-muted">${comment.created_at}</small>
+                                </div>
+                                <p class="mt-2">${comment.content}</p>
+                                <!-- Delete button -->
+                                <button class="btn btn-danger btn-sm delete-comment" data-id="${comment.id}">Delete</button>
+                            </li>
+                        `;
+                        });
+                        commentsHtml += '</ul>';
+                    } else {
+                        commentsHtml = '<p>No comments yet.</p>';
+                    }
+                    commentsContainer.innerHTML = commentsHtml;
+
+                    // Store post ID for the comment form
+                    document.getElementById('post_id').value = postId;
+
+                    // Add event listeners to delete buttons
+                    const deleteButtons = document.querySelectorAll('.delete-comment');
+                    deleteButtons.forEach(button => {
+                        button.addEventListener('click', function(event) {
+                            const commentId = button.getAttribute('data-id');
+                            deleteComment(commentId);
+                        });
+                    });
+                })
+                .catch(error => console.error('Error loading post:', error));
+        }
+
+        // Handle form submission (Add a comment)
+        const commentForm = document.getElementById('comment-form');
+        commentForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const postId = document.getElementById('post_id').value;
+            const content = document.getElementById('comment-content').value;
+
+            fetch('/comments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        post_id: postId,
+                        content: content
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loadPost(postId); // Reload post and comments after adding new comment
+                })
+                .catch(error => {
+                    console.error('Error submitting comment:', error);
+                });
+        });
+
+        // Delete comment function
+        function deleteComment(commentId) {
+            fetch(`/comments/${commentId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loadPost(postId);
+                })
+                .catch(error => {
+                    console.error('Error deleting comment:', error);
+                });
+        }
+
+        // Load the post when the page loads
+        loadPost(postId);
+    });
+</script>
 @endsection

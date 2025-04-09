@@ -22,7 +22,7 @@ class CommentController extends Controller
      * Create new comment
      *
      * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
@@ -31,12 +31,20 @@ class CommentController extends Controller
             'post_id' => 'required|exists:posts,id',
         ]);
         try {
-            $this->commentService->create($data);
-            return back()->with('success', 'Comment created successfully.');
+            $comment = $this->commentService->create($data);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Comment created successfully.',
+                'data' => $comment,
+            ], 201);
         } catch (\Exception $e) {
-            return back()->with('error', 'Error creating comment: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error creating comment: ' . $e->getMessage(),
+            ], 500);
         }
     }
+
 
     /**
      * Update comment
@@ -63,7 +71,7 @@ class CommentController extends Controller
      * Delete comment
      *
      * @param int $id
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
     {
@@ -71,9 +79,16 @@ class CommentController extends Controller
             $comment = $this->commentService->find($id);
             $this->authorize('delete', $comment);
             $this->commentService->delete($id);
-            return back()->with('success', 'Comment deleted successfully.');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Comment deleted successfully.'
+            ], 200);
         } catch (\Exception $e) {
-            return back()->with('error', 'Error deleting comment: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting comment: ' . $e->getMessage()
+            ], 500);
         }
     }
 

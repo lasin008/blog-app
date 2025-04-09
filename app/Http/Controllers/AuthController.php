@@ -30,7 +30,7 @@ class AuthController extends Controller
             'password' => 'required|min:6',
         ]);
         if (Auth::attempt($request->only('email', 'password'))) {
-            return redirect()->route('posts.index');
+            return redirect()->route('home');
         }
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
