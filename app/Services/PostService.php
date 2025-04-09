@@ -2,11 +2,10 @@
 
 namespace App\Services;
 
-use App\Interfaces\PostRepositoryInterface;
+use App\Repositories\PostRepository;
 use App\Models\Post;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\Pagination\Paginator;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class PostService
@@ -16,9 +15,9 @@ class PostService
     /**
      * Inject the PostRepositoryInterface into the service.
      *
-     * @param PostRepositoryInterface $postRepository
+     * @param PostRepository $postRepository
      */
-    public function __construct(PostRepositoryInterface $postRepository)
+    public function __construct(PostRepository $postRepository)
     {
         $this->postRepository = $postRepository;
     }
@@ -27,11 +26,21 @@ class PostService
      * Get a paginated list of posts with optional filters.
      *
      * @param int $perPage
-     * @param array $filters
-     * @return Paginator
+     * @param array $requestData
+     * @return LengthAwarePaginator
      */
-    public function all(int $perPage, array $filters = []): Paginator
+    public function all(int $perPage, array $requestData = []): LengthAwarePaginator
     {
+        foreach ($requestData as $data) {
+            $filters =
+                [
+                    'title' => $data['title'] ?? null,
+                    'author_id' => $data['author_id'] ?? null,
+                    'created_at' => $data['published_on'] ?? null,
+                    'tags' => $data['tags'] ?? null,
+                    'comment_count' => $data['comment_count'] ?? null
+                ];
+        }
         return $this->postRepository->all($perPage, $filters);
     }
 
@@ -44,7 +53,6 @@ class PostService
     public function create(array $data): Post
     {
         $imagePath = isset($data['image']) ? $data['image']->store('images', 'public') : null;
-        Log::info($imagePath);
         $post = $this->postRepository->create([
             'title' => $data['title'],
             'content' => $data['content'],

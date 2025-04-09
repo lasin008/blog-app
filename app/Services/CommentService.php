@@ -2,10 +2,9 @@
 
 namespace App\Services;
 
-use App\Interfaces\CommentRepositoryInterface;
+use App\Repositories\CommentRepository;
 use App\Models\Comment;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Log;
 
 class CommentService
 {
@@ -16,7 +15,7 @@ class CommentService
      *
      * @param CommentRepositoryInterface $commentRepository
      */
-    public function __construct(CommentRepositoryInterface $commentRepository)
+    public function __construct(CommentRepository $commentRepository)
     {
         $this->commentRepository = $commentRepository;
     }
