@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePostRequest;
 use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
@@ -67,13 +68,13 @@ class PostController extends Controller
     /**
      * Store a newly created post in the database.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\StorePostRequest  $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(StorePostRequest $request)
     {
         try {
-            $this->postService->create($this->validatePostData($request));
+            $this->postService->create($request->validated());
             return redirect()->route('posts.index');
         } catch (\Exception $e) {
             Log::error('Error creating post: ' . $e->getMessage());
@@ -105,10 +106,10 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, int $id)
+    public function update(StorePostRequest $request, int $id)
     {
         try {
-            $this->postService->update($id, $this->validatePostData($request));
+            $this->postService->update($id, $request->validated());
             return redirect()->route('posts.index');
         } catch (\Exception $e) {
             Log::error('Error updating the post: ' . $e->getMessage());
@@ -137,23 +138,5 @@ class PostController extends Controller
                 'An error occurred while trying to delete the post. Please try again.'
             );
         }
-    }
-
-    /**
-     * Validate the post data.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return array
-     */
-    protected function validatePostData(Request $request): array
-    {
-        return $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'tags' => 'nullable|array',
-            'tags.*' => 'exists:tags,id',
-            'is_active' => 'nullable|boolean'
-        ]);
     }
 }
