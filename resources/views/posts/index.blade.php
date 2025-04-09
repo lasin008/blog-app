@@ -30,7 +30,8 @@
                 <!-- Published Date Filter -->
                 <div class="col-md-2">
                     <label for="published_on" class="form-label">Published Date</label>
-                    <input type="date" class="form-control form-control-sm" name="published_on" id="published_on" value="{{ request()->get('published_on') }}">
+                    <input type="date" class="form-control form-control-sm" name="published_on" id="published_on" value="{{ request()->get('published_on') }}"
+                        max="{{ date('Y-m-d') }}">
                 </div>
 
                 <!-- Comment Count Filter -->
@@ -56,9 +57,11 @@
             </div>
 
             <!-- Submit Button and Clear Filters Button -->
-            <div class="d-flex justify-content-between mt-3">
-                <button type="submit" class="btn btn-primary btn-sm">Filter</button>
-                <a href="{{ route('posts.index') }}" class="btn btn-secondary btn-sm">Clear Filters</a>
+            <div class="d-flex justify-content-end mt-3">
+                <div class="d-flex w-25"> <!-- Create a flex container -->
+                    <button type="submit" class="btn btn-primary btn-sm w-100 mr-2">Filter</button> <!-- w-100 for full width -->
+                    <a href="{{ route('posts.index') }}" class="btn btn-secondary btn-sm w-100">Clear Filters</a> <!-- w-100 for full width -->
+                </div>
             </div>
         </form>
     </div>
@@ -105,12 +108,12 @@
 
                     <!-- Edit and Delete buttons only visible to the post owner -->
                     @if ($post->author_id == auth()->id())
-                        <a href="{{ route('posts.edit', $post->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                        <form action="{{ route('posts.destroy', $post->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                        </form>
+                    <a href="{{ route('posts.edit', $post->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                    <form action="{{ route('posts.destroy', $post->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
                     @endif
                 </td>
             </tr>
@@ -120,7 +123,7 @@
 
     <!-- Pagination -->
     <div class="d-flex justify-content-center">
-        {{ $posts->appends(request()->query())->links() }}
+        {{ $posts->appends(request()->query())->links('pagination::bootstrap-4') }}
     </div>
 
     <!-- Comments Modal -->

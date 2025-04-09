@@ -9,9 +9,12 @@ use App\Services\PostService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class PostController extends Controller
 {
+    use AuthorizesRequests;
+
     protected $postService;
 
     public function __construct(PostService $postService)
@@ -89,9 +92,7 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        if ($post->author_id != auth()->id()) {
-            return redirect()->route('posts.index')->with('error', 'You are not authorized to edit this post.');
-        }
+        $this->authorize('update', $post);
         $post = $this->postService->find($post->id);
         $tags = Tag::all();
         return view('posts.create', compact('post', 'tags'));
@@ -121,16 +122,21 @@ class PostController extends Controller
     /**
      * Remove the specified post from the database.
      *
-     * @param int $id
+     * @param Post $post
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Post $post)
     {
-        if ($post->author_id != auth()->id()) {
-            return redirect()->route('posts.index')->with('error', 'You are not authorized to edit this post.');
+        try {
+            $this->authorize('delete', $post);
+            $this->postService->delete($post->id);
+            return redirect()->route('posts.index')->with('success', 'Post deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('posts.index')->with(
+                'error',
+                'An error occurred while trying to delete the post. Please try again.'
+            );
         }
-        $this->postService->delete($post->id);
-        return redirect()->route('posts.index');
     }
 
     /**

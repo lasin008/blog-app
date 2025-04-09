@@ -12,22 +12,25 @@
     
     <style>
         html, body {
-            height: 100%; /* Set height of html and body to 100% */
-            margin: 0; /* Remove default margin */
-            display: flex;
-            flex-direction: column; /* Make the body a flex container */
-        }
+        height: 100%; /* Set height of html and body to 100% */
+        margin: 0; /* Remove default margin */
+        display: flex;
+        flex-direction: column; /* Make the body a flex container */
+    }
 
-        .container {
-            flex-grow: 1; /* Allow the content to take up remaining space */
-        }
+    .container {
+        flex-grow: 1; /* Allow the content to take up remaining space */
+        max-width: 1300px; /* Increase the max-width of the container */
+        margin: 0 auto; /* Center the container */
+        padding: 0 15px; /* Adjust padding if necessary */
+    }
 
-        footer {
-            margin-top: auto; /* Push the footer to the bottom */
-            background-color: #f8f9fa;
-            padding-top: 15px;
-            padding-bottom: 15px;
-        }
+    footer {
+        margin-top: auto; /* Push the footer to the bottom */
+        background-color: #f8f9fa;
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
     </style>
 </head>
 
@@ -74,7 +77,7 @@
 
     <!-- Footer -->
     <footer class="text-center">
-        <p class="mb-0">&copy; {{ date('Y') }} Your Company. All rights reserved.</p>
+        <p class="mb-0">&copy; {{ date('Y') }} Company. All rights reserved.</p>
     </footer>
 
     {{-- Bootstrap JS and JQuery --}}
