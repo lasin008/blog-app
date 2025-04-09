@@ -30,7 +30,8 @@
                 <!-- Published Date Filter -->
                 <div class="col-md-2">
                     <label for="published_on" class="form-label">Published Date</label>
-                    <input type="date" class="form-control form-control-sm" name="published_on" id="published_on" value="{{ request()->get('published_on') }}">
+                    <input type="date" class="form-control form-control-sm" name="published_on" id="published_on" value="{{ request()->get('published_on') }}"
+                        max="{{ date('Y-m-d') }}">
                 </div>
 
                 <!-- Comment Count Filter -->
@@ -64,7 +65,7 @@
             </div>
         </form>
     </div>
- 
+
     <!-- Create New Post Button -->
     <div class="d-flex justify-content-end mb-3">
         <a href="{{ route('posts.create') }}" class="btn btn-primary">Create New Post</a>
@@ -107,12 +108,12 @@
 
                     <!-- Edit and Delete buttons only visible to the post owner -->
                     @if ($post->author_id == auth()->id())
-                        <a href="{{ route('posts.edit', $post->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                        <form action="{{ route('posts.destroy', $post->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                        </form>
+                    <a href="{{ route('posts.edit', $post->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                    <form action="{{ route('posts.destroy', $post->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
                     @endif
                 </td>
             </tr>
