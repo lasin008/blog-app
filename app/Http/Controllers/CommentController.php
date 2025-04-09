@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Services\CommentService;
 use Illuminate\Http\Request;
-use App\Models\Comment;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class CommentController extends Controller
 {
+    use AuthorizesRequests;
+
     protected $commentService;
 
     public function __construct(CommentService $commentService)
@@ -50,7 +52,7 @@ class CommentController extends Controller
         ]);
 
         try {
-            $comment = $this->commentService->update($id, $data);
+            $this->commentService->update($id, $data);
             return redirect()->route('comments.index')->with('success', 'Comment updated successfully.');
         } catch (\Exception $e) {
             return back()->with('error', 'Error updating comment: ' . $e->getMessage());
@@ -66,6 +68,8 @@ class CommentController extends Controller
     public function destroy($id)
     {
         try {
+            $comment = $this->commentService->find($id);
+            $this->authorize('delete', $comment);
             $this->commentService->delete($id);
             return back()->with('success', 'Comment deleted successfully.');
         } catch (\Exception $e) {

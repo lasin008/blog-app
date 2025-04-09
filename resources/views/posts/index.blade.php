@@ -122,7 +122,7 @@
 
     <!-- Pagination -->
     <div class="d-flex justify-content-center">
-        {{ $posts->appends(request()->query())->links() }}
+        {{ $posts->appends(request()->query())->links('pagination::bootstrap-4') }}
     </div>
 
     <!-- Comments Modal -->

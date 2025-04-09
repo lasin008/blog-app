@@ -30,7 +30,7 @@ class PostRepository implements PostRepositoryInterface
                 ->orWhere('author_id', auth()->id());
         });
         $query->orderBy('updated_at', 'desc');
-        return $query->simplePaginate($perPage);
+        return $query->paginate($perPage);
     }
 
     /**
