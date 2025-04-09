@@ -56,13 +56,15 @@
             </div>
 
             <!-- Submit Button and Clear Filters Button -->
-            <div class="d-flex justify-content-between mt-3">
-                <button type="submit" class="btn btn-primary btn-sm">Filter</button>
-                <a href="{{ route('posts.index') }}" class="btn btn-secondary btn-sm">Clear Filters</a>
+            <div class="d-flex justify-content-end mt-3">
+                <div class="d-flex w-25"> <!-- Create a flex container -->
+                    <button type="submit" class="btn btn-primary btn-sm w-100 mr-2">Filter</button> <!-- w-100 for full width -->
+                    <a href="{{ route('posts.index') }}" class="btn btn-secondary btn-sm w-100">Clear Filters</a> <!-- w-100 for full width -->
+                </div>
             </div>
         </form>
     </div>
-
+ 
     <!-- Create New Post Button -->
     <div class="d-flex justify-content-end mb-3">
         <a href="{{ route('posts.create') }}" class="btn btn-primary">Create New Post</a>

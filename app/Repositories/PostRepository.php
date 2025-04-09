@@ -90,21 +90,21 @@ class PostRepository implements PostRepositoryInterface
      */
     protected function applyFilters($query, array $filters): void
     {
-        foreach ($filters as $filterKey => $filterValue) {
-            if ($filterValue === '' || $filterValue === null) {
-                continue;
-            }
-            if ($filterKey === 'tags') {
-                $query->whereHas('tags', function ($q) use ($filterValue) {
-                    $q->whereIn('tags.id', (array) $filterValue);
-                });
-            } elseif ($filterKey === 'title') {
-                $query->where('title', 'like', '%' . $filterValue . '%');
-            } elseif ($filterKey === 'published_on') {
-                $query->whereDate('created_at', $filterValue);
-            } elseif ($filterKey === 'author_id') {
-                $query->where('author_id', '=', $filterValue);
-            } elseif ($filterKey === 'comment_count') {
+        $query->when($filters['tags'] ?? null, function ($query, $tags) {
+            $query->whereHas('tags', function ($q) use ($tags) {
+                $q->whereIn('tags.id', (array) $tags);
+            });
+        })
+            ->when($filters['title'] ?? null, function ($query, $title) {
+                $query->where('title', 'like', '%' . $title . '%');
+            })
+            ->when($filters['published_on'] ?? null, function ($query, $published_on) {
+                $query->whereDate('created_at', $published_on);
+            })
+            ->when($filters['author_id'] ?? null, function ($query, $author_id) {
+                $query->where('author_id', '=', $author_id);
+            })
+            ->when($filters['comment_count'] ?? null, function ($query, $filterValue) {
                 if ((int) $filterValue === 0) {
                     $query->whereDoesntHave('comments');
                 } else {
@@ -114,7 +114,6 @@ class PostRepository implements PostRepositoryInterface
                             ->havingRaw('count(comments.id) = ?', [(int) $filterValue]);
                     });
                 }
-            }
-        }
+            });
     }
 }
