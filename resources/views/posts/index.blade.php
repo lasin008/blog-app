@@ -118,15 +118,14 @@
             const params = new URLSearchParams(filters);
             params.set('page', page);
             url.search = params.toString();
-            console.log(url);
+
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);
                     let postsHtml = '';
                     data.data.forEach(function(post) {
                         postsHtml += `
-                            <tr>
+                            <tr id="post-${post.id}">
                                 <td>${post.title}</td>
                                 <td>${post.author}</td>
                                 <td>
@@ -151,11 +150,7 @@
                                     <a href="/edit/${post.id}" class="btn btn-warning btn-sm">Edit</a>
                                     
                                     <!-- Delete Button -->
-                                    <form action="/posts/${post.id}" method="POST" style="display: inline-block;" onsubmit="return confirm('Are you sure you want to delete this post?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                    </form>
+                                    <button class="btn btn-danger btn-sm delete-btn" data-post-id="${post.id}">Delete</button>
                                 </td>
                             </tr>
                         `;
@@ -177,6 +172,39 @@
 
         // Load posts initially
         loadPosts(1);
+
+        // Handle the delete button click
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('delete-btn')) {
+                const postId = e.target.getAttribute('data-post-id');
+                const row = document.getElementById(`post-${postId}`); // Get the post row
+
+                // Confirm delete
+                if (confirm('Are you sure you want to delete this post?')) {
+                    // Send an Ajax request to delete the post
+                    fetch(`/posts/${postId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // If successful, remove the post row from the table
+                                row.remove();
+                            } else {
+                                alert('Failed to delete the post. Please try again.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error deleting post:', error);
+                            alert('An error occurred while deleting the post.');
+                        });
+                }
+            }
+        });
 
         // On filter form change, reload posts with the current filters
         document.getElementById('filter-form').addEventListener('submit', function(e) {
@@ -208,7 +236,6 @@
 
         // Comment button to show comments in modal
         document.addEventListener('click', function(e) {
-            // Check if the clicked element is a comment button
             if (e.target && e.target.classList.contains('comment-btn')) {
                 const postId = e.target.getAttribute('data-post-id');
                 const commentsList = document.getElementById('comments-list');
@@ -220,12 +247,12 @@
                         let commentsHtml = '<ul>';
                         comments.forEach(function(comment) {
                             commentsHtml += `
-                        <li>
-                            <strong>${comment.author.name}</strong>: ${comment.content} 
-                            <br>
-                            <small>Posted on: ${new Date(comment.created_at).toLocaleDateString()}</small>
-                        </li>
-                    `;
+                                <li>
+                                    <strong>${comment.author.name}</strong>: ${comment.content} 
+                                    <br>
+                                    <small>Posted on: ${new Date(comment.created_at).toLocaleDateString()}</small>
+                                </li>
+                            `;
                         });
                         commentsHtml += '</ul>';
                         commentsList.innerHTML = commentsHtml;

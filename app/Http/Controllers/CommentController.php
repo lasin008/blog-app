@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCommentRequest;
 use App\Services\CommentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -24,24 +25,16 @@ class CommentController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(StoreCommentRequest $request)
     {
-        $data = $request->validate([
-            'content' => 'required|string',
-            'post_id' => 'required|exists:posts,id',
-        ]);
         try {
-            $comment = $this->commentService->create($data);
+            $comment = $this->commentService->create($request->validated());
             return response()->json([
                 'status' => 'success',
-                'message' => 'Comment created successfully.',
                 'data' => $comment,
             ], 201);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Error creating comment: ' . $e->getMessage(),
-            ], 500);
+            return $this->handleInternalError($e, 'Unable to create comment');
         }
     }
 
@@ -85,10 +78,7 @@ class CommentController extends Controller
                 'message' => 'Comment deleted successfully.'
             ], 200);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error deleting comment: ' . $e->getMessage()
-            ], 500);
+            return $this->handleInternalError($e, 'Unable to delete comment');
         }
     }
 
@@ -104,11 +94,7 @@ class CommentController extends Controller
             $comments = $this->commentService->findByPost($postId);
             return response()->json($comments);
         } catch (\Exception $e) {
-            Log::error('Error fetching comments for post ' . $postId . ': ' . $e->getMessage());
-            return response()->json([
-                'error' => 'An error occurred while retrieving comments. Please try again later.',
-                'details' => $e->getMessage()
-            ], 500);
+            return $this->handleInternalError($e, 'Unable to delete comment');
         }
     }
 }

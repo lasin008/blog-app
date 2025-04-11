@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Resources\PostCollection;
 use App\Http\Resources\PostDetailsResource;
-use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
 use App\Services\PostService;
@@ -133,8 +132,9 @@ class PostController extends Controller
         $post = $this->postService->find($id);
         $this->authorize('update', $post);
         $tags = Tag::all();
-        return view('posts.create', compact('id', 'tags'));
+        return view('posts.create', compact('id', 'tags', 'post'));
     }
+
 
     /**
      * Update the specified post in the database.
