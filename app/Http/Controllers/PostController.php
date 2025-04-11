@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Validation\ValidationException;
 
 class PostController extends Controller
 {
@@ -57,8 +58,7 @@ class PostController extends Controller
             $posts = $this->postService->all($perPage, $request->all());
             return new PostCollection($posts);
         } catch (Exception $e) {
-            Log::error('Error fetching posts: ' . $e->getMessage());
-            return redirect()->route('posts.index')->with('error', 'Failed to load posts. Please try again later.');
+            return $this->handleInternalError($e, 'Unable to retrieve posts.');
         }
     }
 
@@ -91,15 +91,13 @@ class PostController extends Controller
     public function find($id)
     {
         try {
-            $post = $this->postService->find($id);
+            $post = $this->postService->find((int) $id);
             return response()->json([
                 'status' => 'success',
                 'data' => new PostDetailsResource($post)
             ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'An error occurred while retrieving the post. Please try again later.'
-            ], 500);
+        } catch (Exception $e) {
+            return $this->handleInternalError($e, 'Unable to retrieve the post.');
         }
     }
 
@@ -113,13 +111,14 @@ class PostController extends Controller
     {
         try {
             $this->postService->create($request->validated());
-            return redirect()->route('home');
+            return response()->json([
+                'status' => 'success',
+                'data' => 'Successfully created the post'
+            ], 200);
+        } catch (ValidationException $e) {
+            return $this->handleValidationError($e);
         } catch (\Exception $e) {
-            Log::error('Error creating post: ' . $e->getMessage());
-            return redirect()->route('posts.index')->with(
-                'error',
-                'Failed to create the post. Please try again later.'
-            );
+            return $this->handleInternalError($e, 'Unable to create the post.');
         }
     }
 
@@ -129,12 +128,12 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\View\View
      */
-    public function edit(Post $post)
+    public function edit(int $id)
     {
+        $post = $this->postService->find($id);
         $this->authorize('update', $post);
-        $post = $this->postService->find($post->id);
         $tags = Tag::all();
-        return view('posts.create', compact('post', 'tags'));
+        return view('posts.create', compact('id', 'tags'));
     }
 
     /**
@@ -147,14 +146,16 @@ class PostController extends Controller
     public function update(StorePostRequest $request, int $id)
     {
         try {
+            Log::info("fff");
             $this->postService->update($id, $request->validated());
-            return redirect()->route('posts.index');
+            return response()->json([
+                'status' => 'success',
+                'data' => 'Successfully updated the post'
+            ], 200);
+        } catch (ValidationException $e) {
+            return $this->handleValidationError($e);
         } catch (\Exception $e) {
-            Log::error('Error updating the post: ' . $e->getMessage());
-            return redirect()->route('posts.index')->with(
-                'error',
-                'Failed to update the post. Please try again later.'
-            );
+            return $this->handleInternalError($e, 'Unable to update the post.');
         }
     }
 
@@ -175,10 +176,7 @@ class PostController extends Controller
                 'message' => 'Post deleted successfully.'
             ], 200);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while trying to delete the post. Please try again.'
-            ], 500);
+            return $this->handleInternalError($e, 'Unable to delete the post.');
         }
     }
 }

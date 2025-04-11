@@ -21,9 +21,10 @@ class PostDetailsResource extends JsonResource
             'title' => $post->title,
             'content' => $post->content,
             'tags' => $post->tags->isEmpty() ? [] : $post->tags->map(function ($tag) {
-                return $tag->name;
+                return ['id' => $tag->id, 'name' => $tag->name];
             }),
             'image' => $imageUrl,
+            'author_id' => $post->author->id,
             'author' => $post->author->name,
             'comments' => $post->comments->isEmpty() ? [] : $post->comments->map(function ($comment) {
                 return [
@@ -33,7 +34,7 @@ class PostDetailsResource extends JsonResource
                     'created_at' => $comment->created_at->diffForHumans(), // Format date if needed
                 ];
             }),
-            'created_at' => $post->created_at->diffForHumans(), 
+            'created_at' => $post->created_at->diffForHumans(),
             'updated_at' => $post->updated_at->diffForHumans(),
         ];
     }

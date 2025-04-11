@@ -20,3 +20,5 @@ Route::get('comment/{postId}', [CommentController::class, 'findByPost']);
 Route::get('/home', [PostController::class, 'showPosts'])->name('home')->middleware('auth');
 
 Route::get('post/{postId}/get', [PostController::class, 'find']);
+
+Route::get('edit/{postId}', [PostController::class, 'edit']);

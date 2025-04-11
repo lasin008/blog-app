@@ -58,7 +58,7 @@
                             <div class="mt-3">
                                 <strong>Tags:</strong>
                                 <ul class="list-inline">
-                                    ${data.data.tags.map(tag => `<li class="list-inline-item"><span class="badge badge-info">${tag}</span></li>`).join('')}
+                                    ${data.data.tags.map(tag => `<li class="list-inline-item"><span class="badge badge-info">${tag.name}</span></li>`).join('')}
                                 </ul>
                             </div>
                         </div>

@@ -148,7 +148,7 @@
                                     <a href="/posts/${post.id}" class="btn btn-success btn-sm">View</a>
                                     
                                     <!-- Edit Button -->
-                                    <a href="/posts/${post.id}/edit" class="btn btn-warning btn-sm">Edit</a>
+                                    <a href="/edit/${post.id}" class="btn btn-warning btn-sm">Edit</a>
                                     
                                     <!-- Delete Button -->
                                     <form action="/posts/${post.id}" method="POST" style="display: inline-block;" onsubmit="return confirm('Are you sure you want to delete this post?');">

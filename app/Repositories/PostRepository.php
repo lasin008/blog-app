@@ -35,7 +35,6 @@ class PostRepository extends AbstractRepository
     {
         $query = Post::query();
         $query->with(['author', 'comments']);
-        // $this->applyFilters($query, $filters);
         $this->filterManager->apply($query, $filters);
         $query->where(function ($query) {
             $query->where('is_active', true)
